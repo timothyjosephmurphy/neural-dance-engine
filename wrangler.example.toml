@@ -1,0 +1,25 @@
+# Copy this file to wrangler.toml (gitignored) before deploying.
+# Do not add an account_id, zone id, or production routes here.
+# Set any write secret with: npx wrangler secret put SIM_PARAMS_TOKEN
+# (SIM_PARAMS_TOKEN is only required on the sim preview Worker; see wrangler.sim.example.toml.)
+
+name = "neural-dance-engine"
+main = "worker/index.mjs"
+compatibility_date = "2026-09-29"
+workers_dev = true
+
+[assets]
+directory = "./dist/assets"
+binding = "ASSETS"
+html_handling = "auto-trailing-slash"
+not_found_handling = "404-page"
+run_worker_first = [ "/api/neural-dance/debug/*", "/neural-dance", "/neural-dance/", "/neural-dance/live", "/neural-dance/live/*", "/neural-dance/debug", "/neural-dance/debug/*", "/neural-dance/*.js", "/neural-dance/*.mjs", "/neural-dance/src/*" ]
+
+[durable_objects]
+bindings = [
+  { name = "NEURAL_DANCE_DEBUG", class_name = "NeuralDanceDebugRoom" }
+]
+
+[[migrations]]
+tag = "neural-dance-debug-v1"
+new_sqlite_classes = [ "NeuralDanceDebugRoom" ]

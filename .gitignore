@@ -1,0 +1,15 @@
+node_modules
+dist
+
+# Local deploy config and secrets — start from the *.example.toml files
+wrangler.toml
+wrangler.sim.toml
+.env
+.env.*
+!.env.example
+
+# Offline Listen labeler venv (never shipped)
+.venv-listen-label/
+tools/listen-label/.venv/
+tests/fixtures/listen-corpus/.cache/
+tests/fixtures/listen-corpus/real/*.preview.mp3

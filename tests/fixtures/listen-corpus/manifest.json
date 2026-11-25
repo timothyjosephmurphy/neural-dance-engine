@@ -1,0 +1,461 @@
+{
+  "schema": "nd-listen-corpus-v1",
+  "generatedBy": "scripts/listen-corpus-generate.mjs",
+  "sampleRate": 48000,
+  "clips": [
+    {
+      "id": "syn-4-4-steady-120",
+      "wav": "synthetic/syn-4-4-steady-120.wav",
+      "json": "synthetic/syn-4-4-steady-120.json",
+      "kind": "synthetic",
+      "meter": "4/4",
+      "tempo": {
+        "kind": "constant",
+        "bpm": 120,
+        "unit": "quarter"
+      },
+      "swing": null,
+      "degradations": [],
+      "hatAudible": true,
+      "duration": 17.1,
+      "sampleRate": 48000,
+      "sha256": "77b2319229dbf814f4916523fa39f824a33858e66d6664d023352a624bcb2f59",
+      "seed": 40120,
+      "notes": "Four-on-the-floor 4/4 at a steady 120 BPM."
+    },
+    {
+      "id": "syn-3-4-steady-108",
+      "wav": "synthetic/syn-3-4-steady-108.wav",
+      "json": "synthetic/syn-3-4-steady-108.json",
+      "kind": "synthetic",
+      "meter": "3/4",
+      "tempo": {
+        "kind": "constant",
+        "bpm": 108,
+        "unit": "quarter"
+      },
+      "swing": null,
+      "degradations": [],
+      "hatAudible": true,
+      "duration": 14.433,
+      "sampleRate": 48000,
+      "sha256": "dd429c64f327060d1d03e38cc1da6abc6c1317cf8aa1f0351d9b72873b21774d",
+      "seed": 30108,
+      "notes": "Waltz 3/4, kick on 1, mid on 2 and 3."
+    },
+    {
+      "id": "syn-6-8-steady-96",
+      "wav": "synthetic/syn-6-8-steady-96.wav",
+      "json": "synthetic/syn-6-8-steady-96.json",
+      "kind": "synthetic",
+      "meter": "6/8",
+      "tempo": {
+        "kind": "constant",
+        "bpm": 96,
+        "unit": "dotted-quarter"
+      },
+      "swing": null,
+      "degradations": [],
+      "hatAudible": true,
+      "duration": 11.1,
+      "sampleRate": 48000,
+      "sha256": "292f1f432b48ba895979d2969ddc979bc0e802a80e28d2c832e4728130dfd8ed",
+      "seed": 60896,
+      "notes": "Compound 6/8. Tempo is dotted-quarter = 96 (eighth = 288). Tactus is 2 pulses per bar."
+    },
+    {
+      "id": "syn-5-4-steady-110",
+      "wav": "synthetic/syn-5-4-steady-110.wav",
+      "json": "synthetic/syn-5-4-steady-110.json",
+      "kind": "synthetic",
+      "meter": "5/4",
+      "tempo": {
+        "kind": "constant",
+        "bpm": 110,
+        "unit": "quarter"
+      },
+      "swing": null,
+      "degradations": [],
+      "hatAudible": true,
+      "duration": 22.918,
+      "sampleRate": 48000,
+      "sha256": "3216652b46cc1be1f7ecc48baf556e8bdfe7cbed34347808cf5e7de17cebec64",
+      "seed": 50110,
+      "notes": "5/4 grouped 3+2. Kick on 1 and 4, snare on 3 and 5."
+    },
+    {
+      "id": "syn-7-8-322-210",
+      "wav": "synthetic/syn-7-8-322-210.wav",
+      "json": "synthetic/syn-7-8-322-210.json",
+      "kind": "synthetic",
+      "meter": "7/8",
+      "tempo": {
+        "kind": "constant",
+        "bpm": 210,
+        "unit": "eighth"
+      },
+      "swing": null,
+      "degradations": [],
+      "hatAudible": true,
+      "duration": 17.1,
+      "sampleRate": 48000,
+      "sha256": "7aa55fb094e203a5c6715d112e5a3a31abf7533243b36d4753e4dd01935eb66e",
+      "seed": 78210,
+      "notes": "7/8 grouped 3+2+2. Tempo is eighth = 210. Metric beats are the three uneven groups."
+    },
+    {
+      "id": "syn-332-steady-100",
+      "wav": "synthetic/syn-332-steady-100.wav",
+      "json": "synthetic/syn-332-steady-100.json",
+      "kind": "synthetic",
+      "meter": "3+3+2",
+      "tempo": {
+        "kind": "constant",
+        "bpm": 200,
+        "unit": "eighth"
+      },
+      "swing": null,
+      "degradations": [],
+      "hatAudible": true,
+      "duration": 20.3,
+      "sampleRate": 48000,
+      "sha256": "c472976a0b95c8ba439ac4513965f223f567e12e2552e6f75706305b89eb104e",
+      "seed": 33210,
+      "notes": "Additive 3+3+2 (8/8). Tempo is eighth = 200 (quarter = 100)."
+    },
+    {
+      "id": "syn-4-4-swing-2-1-120",
+      "wav": "synthetic/syn-4-4-swing-2-1-120.wav",
+      "json": "synthetic/syn-4-4-swing-2-1-120.json",
+      "kind": "synthetic",
+      "meter": "4/4",
+      "tempo": {
+        "kind": "constant",
+        "bpm": 120,
+        "unit": "quarter"
+      },
+      "swing": {
+        "ratio": [
+          2,
+          1
+        ],
+        "label": "2:1"
+      },
+      "degradations": [],
+      "hatAudible": true,
+      "duration": 17.1,
+      "sampleRate": 48000,
+      "sha256": "b2b68d9d0028a5f7a23b8b046b9569d5f3603b97b06992a40d626766029472b2",
+      "seed": 42120,
+      "notes": "4/4 with triplet (2:1) swing on the off-eighths (hats and bass ands)."
+    },
+    {
+      "id": "syn-4-4-swing-3-2-120",
+      "wav": "synthetic/syn-4-4-swing-3-2-120.wav",
+      "json": "synthetic/syn-4-4-swing-3-2-120.json",
+      "kind": "synthetic",
+      "meter": "4/4",
+      "tempo": {
+        "kind": "constant",
+        "bpm": 120,
+        "unit": "quarter"
+      },
+      "swing": {
+        "ratio": [
+          3,
+          2
+        ],
+        "label": "3:2"
+      },
+      "degradations": [],
+      "hatAudible": true,
+      "duration": 17.1,
+      "sampleRate": 48000,
+      "sha256": "72b42d190841783db95938070a5186ba2d19e203c733d9e8c909ff5ddda9d66c",
+      "seed": 43120,
+      "notes": "4/4 with 3:2 shuffle swing on the off-eighths."
+    },
+    {
+      "id": "syn-4-4-drift-plus8-120",
+      "wav": "synthetic/syn-4-4-drift-plus8-120.wav",
+      "json": "synthetic/syn-4-4-drift-plus8-120.json",
+      "kind": "synthetic",
+      "meter": "4/4",
+      "tempo": {
+        "kind": "linear-drift",
+        "bpmStart": 120,
+        "bpmEnd": 129.6,
+        "unit": "quarter",
+        "units": 32
+      },
+      "swing": null,
+      "degradations": [],
+      "hatAudible": true,
+      "duration": 16.492,
+      "sampleRate": 48000,
+      "sha256": "87fa1aa3713811ecc431799a099b24761a9e8e7a43612af9452390832c6939ee",
+      "seed": 48120,
+      "notes": "4/4 with a gradual +8% tempo drift (120 → 129.6 BPM) across 8 bars of score time."
+    },
+    {
+      "id": "syn-4-4-drift-minus8-120",
+      "wav": "synthetic/syn-4-4-drift-minus8-120.wav",
+      "json": "synthetic/syn-4-4-drift-minus8-120.json",
+      "kind": "synthetic",
+      "meter": "4/4",
+      "tempo": {
+        "kind": "linear-drift",
+        "bpmStart": 120,
+        "bpmEnd": 110.4,
+        "unit": "quarter",
+        "units": 32
+      },
+      "swing": null,
+      "degradations": [],
+      "hatAudible": true,
+      "duration": 17.776,
+      "sampleRate": 48000,
+      "sha256": "20227cae023925e04eca7ba86b10c0f39a5d6594448df310ba929efb6f738dc3",
+      "seed": 48121,
+      "notes": "4/4 with a gradual −8% tempo drift (120 → 110.4 BPM) across 8 bars of score time."
+    },
+    {
+      "id": "syn-4-4-rubato-112",
+      "wav": "synthetic/syn-4-4-rubato-112.wav",
+      "json": "synthetic/syn-4-4-rubato-112.json",
+      "kind": "synthetic",
+      "meter": "4/4",
+      "tempo": {
+        "kind": "rubato",
+        "bpm": 112,
+        "unit": "quarter",
+        "depth": 0.09,
+        "periodUnits": 8,
+        "phi": 0.4,
+        "integrateStep": 0.03125
+      },
+      "swing": null,
+      "degradations": [],
+      "hatAudible": true,
+      "duration": 18.313,
+      "sampleRate": 48000,
+      "sha256": "7e523a253bcc2aa2c9581c5a0405f3460cdd73d94fa174241316f5e9679302cd",
+      "seed": 40112,
+      "notes": "4/4 with sinusoidal rubato (±9% instantaneous BPM, period = 2 bars)."
+    },
+    {
+      "id": "syn-4-4-break-120",
+      "wav": "synthetic/syn-4-4-break-120.wav",
+      "json": "synthetic/syn-4-4-break-120.json",
+      "kind": "synthetic",
+      "meter": "4/4",
+      "tempo": {
+        "kind": "constant",
+        "bpm": 120,
+        "unit": "quarter"
+      },
+      "swing": null,
+      "degradations": [],
+      "hatAudible": true,
+      "duration": 17.1,
+      "sampleRate": 48000,
+      "sha256": "07a4ce685aeb99ce14393f3241d5291019541215258d51897eea858661c84f86",
+      "seed": 40220,
+      "notes": "Steady 4/4 with a 2-bar break (silence) at bars 5–6. Beats and downbeats continue through the gap; band hits do not."
+    },
+    {
+      "id": "syn-4-4-fill-120",
+      "wav": "synthetic/syn-4-4-fill-120.wav",
+      "json": "synthetic/syn-4-4-fill-120.json",
+      "kind": "synthetic",
+      "meter": "4/4",
+      "tempo": {
+        "kind": "constant",
+        "bpm": 120,
+        "unit": "quarter"
+      },
+      "swing": null,
+      "degradations": [],
+      "hatAudible": true,
+      "duration": 17.1,
+      "sampleRate": 48000,
+      "sha256": "5fdd5840e9ff8f6836bcdd85c6e2c6492036e88315c89ddabdf9baf189dfb485",
+      "seed": 40320,
+      "notes": "Steady 4/4 with a 2-bar mid-band 16th-note fill at bars 5–6."
+    },
+    {
+      "id": "syn-4-4-moving-accents-120",
+      "wav": "synthetic/syn-4-4-moving-accents-120.wav",
+      "json": "synthetic/syn-4-4-moving-accents-120.json",
+      "kind": "synthetic",
+      "meter": "4/4",
+      "tempo": {
+        "kind": "constant",
+        "bpm": 120,
+        "unit": "quarter"
+      },
+      "swing": null,
+      "degradations": [],
+      "hatAudible": true,
+      "duration": 17.1,
+      "sampleRate": 48000,
+      "sha256": "ac69bb45d2cfae182ad5c157cb6818ce18e333c839558b798448a74bed35eb78",
+      "seed": 40420,
+      "notes": "4/4 with the kick (and hat) accent rotating to a new beat each bar."
+    },
+    {
+      "id": "syn-4-4-tempo-change-100-128",
+      "wav": "synthetic/syn-4-4-tempo-change-100-128.wav",
+      "json": "synthetic/syn-4-4-tempo-change-100-128.json",
+      "kind": "synthetic",
+      "meter": "4/4",
+      "tempo": {
+        "kind": "step",
+        "unit": "quarter",
+        "bpm": 100,
+        "steps": [
+          {
+            "u": 0,
+            "bpm": 100
+          },
+          {
+            "u": 16,
+            "bpm": 128
+          }
+        ]
+      },
+      "swing": null,
+      "degradations": [],
+      "hatAudible": true,
+      "duration": 18.2,
+      "sampleRate": 48000,
+      "sha256": "c462eb61d5b66dc44fdade8cf43dcb64d77a281eaf3c8544b5f53857da4caa47",
+      "seed": 40128,
+      "notes": "4 bars at 100 BPM, then an immediate step to 128 BPM for 4 bars."
+    },
+    {
+      "id": "syn-4-4-phone-mic-120",
+      "wav": "synthetic/syn-4-4-phone-mic-120.wav",
+      "json": "synthetic/syn-4-4-phone-mic-120.json",
+      "kind": "synthetic",
+      "meter": "4/4",
+      "tempo": {
+        "kind": "constant",
+        "bpm": 120,
+        "unit": "quarter"
+      },
+      "swing": null,
+      "degradations": [
+        "room-reverb",
+        "phone-mic-100-8k",
+        "noise"
+      ],
+      "hatAudible": true,
+      "duration": 17.1,
+      "sampleRate": 48000,
+      "sha256": "d57050f011e9a2d304801b0a7553a01f589ae743a7af82035e0383a6ed18a93d",
+      "seed": 40920,
+      "notes": "Same groove as syn-4-4-steady-120, through a phone-mic simulation: room reverb, 100 Hz–8 kHz band-limit, sensor noise."
+    },
+    {
+      "id": "syn-4-4-phone-mic-hatcut-120",
+      "wav": "synthetic/syn-4-4-phone-mic-hatcut-120.wav",
+      "json": "synthetic/syn-4-4-phone-mic-hatcut-120.json",
+      "kind": "synthetic",
+      "meter": "4/4",
+      "tempo": {
+        "kind": "constant",
+        "bpm": 120,
+        "unit": "quarter"
+      },
+      "swing": null,
+      "degradations": [
+        "room-reverb",
+        "phone-mic-100-5k",
+        "noise",
+        "lowpass-5k"
+      ],
+      "hatAudible": false,
+      "duration": 17.1,
+      "sampleRate": 48000,
+      "sha256": "39e5c3bf313b269f2f38587269d7ad741538e03f7e1fdda810910fdf099d2f64",
+      "seed": 40921,
+      "notes": "Phone-mic sim with a 5 kHz low-pass (no content above 5 kHz), mirroring the iPhone hat-zero finding. Hat hit times are still labeled; they should be inaudible."
+    },
+    {
+      "id": "syn-7-8-phone-mic-hatcut-210",
+      "wav": "synthetic/syn-7-8-phone-mic-hatcut-210.wav",
+      "json": "synthetic/syn-7-8-phone-mic-hatcut-210.json",
+      "kind": "synthetic",
+      "meter": "7/8",
+      "tempo": {
+        "kind": "constant",
+        "bpm": 210,
+        "unit": "eighth"
+      },
+      "swing": null,
+      "degradations": [
+        "room-reverb",
+        "phone-mic-100-5k",
+        "noise",
+        "lowpass-5k"
+      ],
+      "hatAudible": false,
+      "duration": 17.1,
+      "sampleRate": 48000,
+      "sha256": "d55ee9cbca08bda6beea9a3d698087170dad723142a3a72cecf11bb5197e24e7",
+      "seed": 78921,
+      "notes": "7/8 (3+2+2) through the same 5 kHz phone-mic cut as the 4/4 hat-cut clip."
+    },
+    {
+      "id": "real-marvman-3-4-a",
+      "wav": "real/real-marvman-3-4-a.wav",
+      "json": "real/real-marvman-3-4-a.json",
+      "kind": "real",
+      "meter": "3/4",
+      "sha256": "293bd71ec7395aa0ad2802cd8749c932cf6006d3cd96e2dea2da9767fef435fc",
+      "license": "CC0-1.0",
+      "source": "https://freesound.org/people/marvman/sounds/38353/"
+    },
+    {
+      "id": "real-marvman-6-8-a",
+      "wav": "real/real-marvman-6-8-a.wav",
+      "json": "real/real-marvman-6-8-a.json",
+      "kind": "real",
+      "meter": "6/8",
+      "sha256": "9c78d2144e896aa2fb5a58e6177331f3afb41e063cb40c130dc63b9ab0cb9c0c",
+      "license": "CC0-1.0",
+      "source": "https://freesound.org/people/marvman/sounds/38360/"
+    },
+    {
+      "id": "real-marvman-5-4-b",
+      "wav": "real/real-marvman-5-4-b.wav",
+      "json": "real/real-marvman-5-4-b.json",
+      "kind": "real",
+      "meter": "5/4",
+      "sha256": "a63ea15c903e5484d1c5b611a67fd4139b630aca0b13724c17039e074d589e35",
+      "license": "CC0-1.0",
+      "source": "https://freesound.org/people/marvman/sounds/38359/"
+    },
+    {
+      "id": "real-marvman-7-8-b2",
+      "wav": "real/real-marvman-7-8-b2.wav",
+      "json": "real/real-marvman-7-8-b2.json",
+      "kind": "real",
+      "meter": "7/8",
+      "sha256": "3f5aca3a21b9a819618a546c33ac44df92d58c61847198f35de335f25b3b4f27",
+      "license": "CC0-1.0",
+      "source": "https://freesound.org/people/marvman/sounds/38364/"
+    },
+    {
+      "id": "real-stomachache-110-shuffle",
+      "wav": "real/real-stomachache-110-shuffle.wav",
+      "json": "real/real-stomachache-110-shuffle.json",
+      "kind": "real",
+      "meter": "4/4",
+      "sha256": "e125143105b9cd6bb7a44ca0f5c014db8d76217504a3b5454d6f1129e34f1cc8",
+      "license": "CC0-1.0",
+      "source": "https://freesound.org/people/stomachache/sounds/139060/"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+# Offline-only. Never shipped with Neural Dance.
+# madmom 0.16.1 on PyPI does not build on Python 3.13; use this git pin.
+# Models bundled with madmom are CC BY-NC-SA 4.0 (non-commercial).
+numpy
+scipy
+cython
+setuptools
+madmom @ git+https://github.com/CPJKU/madmom.git@27f032e8947204902c675e5e341a3faf5dc86dae

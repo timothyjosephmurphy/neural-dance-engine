@@ -1,0 +1,8 @@
+{
+  "note": "Camera-grid stand-in for the /debug/ view. The sticker coordinate is the one TJ read off that 480-wide frame. The PNG itself includes the debug chrome, so this raster is only the camera pixels.",
+  "width": 480,
+  "height": 360,
+  "sticker": {"x": 297, "y": 300, "w": 10, "h": 16},
+  "quad": [{"x": 28, "y": 22}, {"x": 452, "y": 26}, {"x": 448, "y": 338}, {"x": 34, "y": 334}],
+  "blobs": [[80, 70], [140, 90], [200, 60], [260, 110], [340, 80], [400, 120], [90, 180], [160, 200], [230, 170], [310, 190], [380, 210], [120, 260], [220, 250], [360, 270]]
+}

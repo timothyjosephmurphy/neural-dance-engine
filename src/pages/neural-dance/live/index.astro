@@ -1,0 +1,333 @@
+---
+// Copyright (c) 2026 TJ Murphy / Vermillion Aurora Productions
+// SPDX-License-Identifier: MIT
+// Full-screen projector page. No site header, nav, or footer.
+// The dancer stage is neural-dance/room-lab.js. The camera is camera-markers.js.
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="nd-build" content="__ND_BUILD__" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="robots" content="noindex" />
+<title>Neural Dance Live | TJ Murphy</title>
+<meta name="description" content="Full-screen Neural Dance for a projector: room-music dancers, the microphone, and a Continuity Camera watching pink notes on the wall." />
+<meta property="og:image" content="https://tjm.art/brand/neural-dance-share.jpg" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content="Neural Dance dancers on a dark stage, each wrapped in a glowing sound-wave ring" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://tjm.art/brand/neural-dance-share.jpg" />
+<meta name="twitter:image:alt" content="Neural Dance dancers on a dark stage, each wrapped in a glowing sound-wave ring" />
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style is:inline>
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#000;color:#f4f6fb;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{--background:#080910;--foreground:#f4f6fb;--viz-series-1:#ff927d;--viz-series-2:#eb92f5;--viz-series-3:#7fe8b3;--viz-series-4:#81b7fc;overflow:hidden;height:100dvh}
+button,select,input{font:inherit}
+button{cursor:pointer}
+#nd-room-lab{display:block}
+#nd-room-projector{position:fixed;inset:0;z-index:1;width:100vw;height:100dvh;margin:0;background:#080910;overflow:hidden;pointer-events:none}
+#nd-room-lab [data-stage]{display:block;width:100%;height:100%;background:#080910;touch-action:none;pointer-events:auto}
+.nd-cal-pattern,[data-align-lock-outline],[data-align-banner],[data-person-note]{pointer-events:none}
+.nd-live-stack{display:contents}
+.nd-live-chrome{position:fixed;top:0;left:0;right:0;z-index:1000003;display:flex;flex-direction:column;pointer-events:none;box-sizing:border-box;padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);max-height:min(46dvh, calc(100dvh - 132px - env(safe-area-inset-bottom)))}
+.nd-live-status{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;padding:4px 8px 8px;color:#c5cada;font-size:13px;pointer-events:none}
+[data-wake-note]{position:fixed;left:max(8px,env(safe-area-inset-left));bottom:max(8px,env(safe-area-inset-bottom));z-index:1000005;pointer-events:none;margin:0;font:600 12px/1.2 Inter,system-ui,sans-serif;color:#3a2a00;background:#f3e2b3;border:1px solid #c9a24a;border-radius:999px;padding:4px 8px}
+.nd-live-bar,.nd-live-details{pointer-events:auto;touch-action:manipulation}
+.nd-live-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:6px 8px;background:rgba(16,18,26,.88);border-bottom:1px solid rgba(255,255,255,.14);font-size:13px}
+.nd-live-details{overflow:auto;max-height:min(34dvh, calc(100dvh - 180px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));padding:8px;background:rgba(12,14,20,.92);border-bottom:1px solid rgba(255,255,255,.14);font-size:13px}
+[data-debug-pair]{margin:8px 0;padding:8px;border:1px solid rgba(248,113,113,.45);border-radius:10px;background:rgba(60,16,16,.55)}
+[data-debug-pair][data-standalone="1"]{border-color:#f87171;box-shadow:0 0 0 1px rgba(248,113,113,.35)}
+[data-debug-pair-banner]{position:fixed;z-index:1000015;top:max(8px, env(safe-area-inset-top));left:50%;transform:translateX(-50%);margin:0;padding:8px 14px;border-radius:999px;background:#7a1f1f;border:1px solid #f87171;color:#fff;font:600 13px/1.3 Inter,system-ui,sans-serif;cursor:pointer;touch-action:manipulation;pointer-events:auto;max-width:min(92vw,420px)}
+[data-debug-pair-banner]:not([hidden]){display:inline-flex !important;align-items:center;justify-content:center}
+body.nd-live-hidden [data-debug-pair-banner]:not([hidden]){display:inline-flex !important}
+body.nd-align-clean [data-debug-pair-banner],body.nd-live-pattern [data-debug-pair-banner],body.nd-latency-test [data-debug-pair-banner]{display:none !important}
+#nd-camera-mode{position:fixed;right:calc(8px + env(safe-area-inset-right));bottom:calc(8px + env(safe-area-inset-bottom));z-index:1000002;width:min(280px,46vw);max-height:min(280px, calc(100dvh - 46dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));display:flex;flex-direction:column;overflow:auto;padding:8px;background:rgba(7,8,12,.92);border:1px solid rgba(255,255,255,.16);border-radius:12px;font-size:16px;touch-action:manipulation;pointer-events:auto}
+.viz-row,.viz-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.viz-controls{align-items:end}
+h1,h2{font-size:13px;margin:0 4px 0 0}
+.btn,.form-select{border:1px solid rgba(255,255,255,.18);background:#171a24;color:#f4f6fb;border-radius:14px;padding:8px 12px;font-size:16px;min-width:48px;min-height:48px;touch-action:manipulation}
+#nd-camera-mode .btn{padding:8px 12px;font-size:16px}
+#nd-camera-mode .viz-controls{display:none}
+#nd-camera-mode.is-tuned .viz-controls{display:grid;grid-template-columns:minmax(0,1fr);gap:6px}
+.nd-live-details .viz-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px;align-items:end}
+@media (min-width:700px){.nd-live-details .viz-controls{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.btn-primary{background:#3158b8;border-color:#527af0}
+.btn[aria-pressed="true"],.btn[data-state="listening"]{background:#1d6b45;border-color:#3dba7a}
+.btn[data-state="muted"]{background:#3a3420;border-color:#c9a24a;color:#f3e2b3}
+.btn[data-state="unavailable"]{border-color:#8a6070}
+.btn:disabled{cursor:default;opacity:.55}
+.btn.is-pressed,.btn:active{transform:translateY(1px) scale(.98);filter:brightness(1.35);border-color:#fff}
+button:focus,input:focus,select:focus,a:focus{outline:none}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid #9baef0;outline-offset:3px}
+.viz-controls{padding:6px;background:#10121a;border-radius:12px;margin:0}
+.form-label{display:grid;gap:4px;flex:1 1 120px;min-width:0;color:#aab0c0;font-size:13px}
+.mode-toggle{display:flex;gap:6px;flex-wrap:wrap}
+.mode-toggle .btn{flex:1}
+.form-range{width:100%;min-height:48px;margin:0;accent-color:#81b7fc;touch-action:manipulation}
+#nd-camera-mode .form-range{accent-color:#38bdf8}
+.viz-controls output{color:#fff;font-variant-numeric:tabular-nums}
+.text-small{font-size:13px;color:#aab0c0}
+label:has(input[type="checkbox"]){min-height:48px;display:inline-flex;align-items:center;gap:8px;font-size:16px;touch-action:manipulation}
+input[type="checkbox"]{width:28px;height:28px;min-width:28px;min-height:28px}
+[data-mic]{color:#d5deff}
+[data-beat]{color:#f4f6fb;font-weight:650;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+[data-legend].is-hot{text-shadow:0 0 10px currentColor}
+.meter{display:none;width:48px;height:5px;margin-left:6px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden;vertical-align:middle}
+#nd-room-lab[data-mic="listening"] .meter{display:inline-block}
+.meter i{display:block;height:100%;width:100%;background:currentColor;transform:scaleX(0);transform-origin:left center}
+#nd-room-lab [data-spectrum]{display:block;width:100%;height:40px;background:#05060a;border-radius:10px;margin:0}
+.camera-frame{position:relative;order:-1;width:100%;height:78px;min-height:72px;flex:none;background:#05060a;border-radius:10px;overflow:hidden;margin:0 0 4px}
+#nd-camera-mode [data-preview],#nd-camera-mode [data-overlay]{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#05060a}
+#nd-camera-mode [data-overlay]{touch-action:none;cursor:crosshair}
+.nd-cal-pattern{position:absolute;inset:0;z-index:8;pointer-events:none;background-color:#000;display:block}
+.nd-cal-pattern[hidden]{display:none !important}
+.nd-cal-pattern i{position:absolute;width:16%;height:18%;transform:translate(-50%,-50%);border-radius:10px;border:8px solid #000;box-shadow:0 0 0 6px #000;display:flex;align-items:center;justify-content:center;font:800 4.2vw/1.1 sans-serif;color:#111;text-align:center}
+.nd-cal-pattern::before{content:'';position:absolute;inset:0;background-color:transparent;background-image:linear-gradient(to right,rgba(255,255,255,.92) 3px,transparent 3px),linear-gradient(to bottom,rgba(255,255,255,.92) 3px,transparent 3px);background-size:12.5% 12.5%;background-position:center;pointer-events:none}
+[data-align-banner]{position:fixed;top:auto;right:auto;bottom:max(12px, env(safe-area-inset-bottom, 12px));left:max(12px, env(safe-area-inset-left, 12px));transform:none;z-index:1000010;pointer-events:none;opacity:0.92;max-width:min(50vw, 340px);padding:6px 12px;border-radius:999px;background:#10121a;color:#f4f6fb;font:700 13px/1.3 Inter,system-ui,sans-serif;text-align:left;box-shadow:0 12px 40px #000}
+[data-align-banner][hidden]{display:none !important}
+[data-debug-banner]{position:fixed;left:50%;bottom:max(12px, env(safe-area-inset-bottom, 12px));transform:translateX(-50%);z-index:1000020;display:flex;gap:8px;align-items:center;max-width:min(92vw, 640px);padding:10px 12px;border-radius:999px;background:#1a2744;color:#f4f6fb;border:1px solid #527af0;box-shadow:0 10px 30px #000}
+[data-debug-banner][hidden]{display:none !important}
+[data-debug-panel]{display:grid;gap:6px;margin-top:8px}
+[data-debug-panel][hidden]{display:none !important}
+[data-debug-code]{font-variant-numeric:tabular-nums;letter-spacing:.04em;color:#fff}
+[data-debug-link]{color:#9baef0;overflow-wrap:anywhere}
+[data-debug-advanced]{margin-top:8px}
+[data-debug-advanced] > summary{min-height:48px;display:flex;align-items:center;cursor:pointer;color:#aab0c0;font-size:13px}
+[data-align-banner][data-kind="ok"]{background:#1d6b45;color:#fff}
+[data-align-banner][data-kind="warn"]{background:#8a5a12;color:#fff}
+[data-align-flash]{position:absolute;inset:0;z-index:30;pointer-events:none}
+[data-align-flash][data-mode="black"]{background:#000}
+[data-align-flash][data-mode="white"]{background:#fff}
+[data-align-flash][hidden]{display:none !important}
+/* Re-learn bare painting: full-screen white above the warped projector, the
+   stage canvas, ripple, insets, and the align cancel zone (z-index 1000050). */
+[data-bare-white]{position:fixed;inset:0;z-index:1000060;background:#fff;pointer-events:none}
+[data-bare-white][hidden]{display:none !important}
+[data-align-lock-outline]{position:fixed;inset:0;width:100vw;height:100dvh;z-index:1000008;pointer-events:none}
+[data-align-lock-outline][hidden]{display:none !important}
+.nd-note-lock{position:absolute;z-index:6;transform:translate(-50%,-130%);padding:8px 12px;border-radius:999px;background:#3dba7a;color:#07140c;border:3px solid #ffd76a;font:700 16px/1.2 Inter,system-ui,sans-serif;pointer-events:none;white-space:nowrap}
+.nd-cal-pattern [data-cal="red"]{background:#ff2a2a;left:18%;top:18%}
+.nd-cal-pattern [data-cal="green"]{background:#00e5a8;left:82%;top:18%}
+.nd-cal-pattern [data-cal="blue"]{background:#2f6bff;left:82%;top:82%;color:#fff}
+.nd-cal-pattern [data-cal="yellow"]{background:#ffe14a;left:18%;top:82%}
+/* Corner build stamp: stays up when controls are hidden. Hidden only while a
+   blank flash is painted (ndScanUntil), during latency, or align/pattern. */
+[data-nd-build]{position:fixed;z-index:1000001;right:max(8px, env(safe-area-inset-right));bottom:max(8px, env(safe-area-inset-bottom));margin:0;padding:3px 8px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.10);color:#7a8296;font:600 11px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.04em;font-variant-numeric:tabular-nums;user-select:all;pointer-events:none;opacity:.85}
+#nd-room-lab[data-nd-scan-until] [data-nd-build]{visibility:hidden}
+#nd-room-lab[data-nd-scan-flash] [data-nd-build]{visibility:hidden}
+body.nd-align-clean #nd-room-lab canvas{/* scan/align: canvas is the only light */}
+body.nd-live-hidden [data-nd-build]{display:block !important;visibility:visible}
+.nd-live-reveal{position:fixed;z-index:1000090;top:max(8px, env(safe-area-inset-top));left:max(8px, env(safe-area-inset-left));opacity:.25;touch-action:manipulation;-webkit-tap-highlight-color:transparent;background:transparent;color:#c3c8d2;border:1px solid rgba(195,200,210,.45);box-shadow:none;transition:opacity .2s ease,background-color .2s ease}
+/* Dim so it does not block the projection in the corner (TJ Nov 11); brightens on hover, tap, focus, or while open. */
+.nd-live-reveal:hover,.nd-live-reveal:focus-visible,.nd-live-reveal:active,.nd-live-reveal[aria-expanded="true"]{opacity:.95;background:rgba(18,20,28,.78);color:#f4f6fb;border-color:rgba(255,255,255,.5)}
+body.nd-live-hidden:not(.nd-live-aligning):not(.nd-align-clean):not(.nd-live-pattern) .nd-live-reveal{display:inline-flex !important}
+body.nd-live #nd-room-projector{position:fixed !important;inset:0 !important;top:0 !important;left:0 !important;width:100vw !important;height:100dvh !important;margin:0 !important;transform:none !important}
+body.nd-live-collapsed .nd-live-details{display:none}
+body.nd-live-hidden:not(.nd-control-held) .nd-live-chrome{display:none}
+body.nd-live-hidden #nd-camera-mode{right:auto;bottom:auto;left:0;top:0;width:320px;height:180px;max-height:none;transform:translateX(-120vw);overflow:hidden;padding:0;border:0;z-index:1}
+body.nd-live-hidden #nd-camera-mode .viz-row,body.nd-live-hidden #nd-camera-mode .viz-controls,body.nd-live-hidden #nd-camera-mode .text-small{display:none}
+body.nd-live-preview-off #nd-camera-mode .camera-frame{position:fixed;left:0;top:0;width:240px;height:135px;transform:translateX(-120vw);opacity:1;pointer-events:none}
+button[data-phase="pressed"],button[data-phase="working"]{box-shadow:inset 0 0 0 2px #ffd166}
+button[data-phase="done"]{box-shadow:inset 0 0 0 2px #3dff9a}
+body.nd-live-aligning:not(.nd-control-held) .nd-live-chrome,body.nd-live-aligning:not(.nd-control-held) .nd-live-reveal{display:none}
+body.nd-latency-test .nd-live-chrome,body.nd-latency-test .nd-live-reveal,body.nd-latency-test #nd-camera-mode,body.nd-latency-test [data-nd-build]{display:none !important}
+/* Painting surface: the warped projector layer sits on the frame; all else is black (mask). */
+html:has(body.nd-painting),body.nd-painting{background:#000 !important}
+body.nd-painting #nd-room-projector{background:#000 !important}
+body.nd-live-aligning #nd-room-projector,body.nd-live-aligning #nd-room-lab [data-stage],body.nd-live-aligning [data-align-flash]{pointer-events:none}
+body.nd-live-aligning [data-align-controls]{z-index:1000080;pointer-events:none}
+body.nd-live-aligning [data-align-controls] .btn{pointer-events:auto}
+body.nd-align-clean .nd-live-chrome,body.nd-align-clean .nd-live-reveal,body.nd-align-clean [data-nd-build],body.nd-align-clean #nd-camera-mode,body.nd-align-clean [data-align-banner],body.nd-align-clean [data-align-readout],body.nd-align-clean [data-align-controls],body.nd-align-clean [data-person-note],body.nd-align-clean [data-debug-banner],body.nd-align-clean [data-live-resume],body.nd-align-clean [data-reset-zoom],body.nd-align-clean [data-align-lock-outline],body.nd-align-clean [data-pattern-exit]{display:none !important}
+body.nd-live-pattern .nd-live-chrome,body.nd-live-pattern .nd-live-reveal,body.nd-live-pattern [data-nd-build],body.nd-live-pattern #nd-camera-mode,body.nd-live-pattern [data-align-banner],body.nd-live-pattern [data-person-note],body.nd-live-pattern [data-debug-banner],body.nd-live-pattern [data-live-resume],body.nd-live-pattern [data-reset-zoom]{display:none !important}
+[data-align-cancel-zone]{position:fixed;inset:0;z-index:1000050;background:transparent;border:0;margin:0;padding:0;pointer-events:auto;touch-action:manipulation}
+[data-align-cancel-zone][hidden]{display:none !important}
+[data-pattern-exit]{position:fixed;z-index:1000060;top:max(8px, env(safe-area-inset-top));left:max(8px, env(safe-area-inset-left));touch-action:manipulation}
+[data-pattern-exit][hidden]{display:none !important}
+body.nd-live-aligning .nd-cal-pattern{background-color:#000}
+body.nd-live-aligning #nd-camera-mode{right:auto;bottom:auto;left:0;top:0;width:320px;height:180px;max-height:none;transform:translateX(-120vw);overflow:hidden;padding:0;border:0;z-index:1;pointer-events:none}
+body.nd-live-aligning.nd-live-placing #nd-camera-mode{right:calc(8px + env(safe-area-inset-right));bottom:calc(64px + env(safe-area-inset-bottom));left:auto;top:auto;width:min(420px, 86vw);height:auto;max-height:46dvh;transform:none;overflow:auto;padding:8px;border:1px solid rgba(255,255,255,.16);z-index:1000025;pointer-events:auto}
+body.nd-live-placing #nd-camera-mode .camera-frame{height:min(42dvh, 280px)}
+[data-cancel-align],[data-place-corners]{min-width:48px;min-height:48px;touch-action:manipulation}
+[data-reset-zoom]{position:fixed;z-index:1000040;top:max(8px, env(safe-area-inset-top));right:max(8px, env(safe-area-inset-right));pointer-events:auto}
+[data-reset-zoom][hidden]{display:none !important}
+[data-align-readout]{position:fixed;top:max(12px, env(safe-area-inset-top));left:max(12px, env(safe-area-inset-left));right:max(12px, env(safe-area-inset-right));z-index:1000011;pointer-events:none;margin:0;padding:8px 12px;border-radius:14px;background:rgba(16,18,26,.92);color:#f4f6fb;font:600 16px/1.35 Inter,system-ui,sans-serif;text-align:center}
+[data-align-readout][hidden]{display:none !important}
+[data-align-controls]{position:fixed;left:max(12px, env(safe-area-inset-left));right:max(12px, env(safe-area-inset-right));bottom:max(10px, env(safe-area-inset-bottom));z-index:1000011;display:flex;justify-content:flex-end;gap:12px;pointer-events:none}
+[data-align-controls] .btn{pointer-events:auto;flex:0 1 auto}
+[data-place-corners][hidden],[data-cancel-align][hidden]{display:none !important}
+[data-person-note]{position:fixed;top:max(8px, env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:1000012;margin:0;padding:6px 12px;border-radius:999px;background:#3a3420;color:#f3e2b3;border:1px solid #c9a24a;font:600 13px/1.3 Inter,system-ui,sans-serif;pointer-events:none}
+[data-person-note][hidden]{display:none !important}
+/* Person pause off warning (TJ Nov 11 3:06 PM): dim top-right chip, same dim style as Controls. */
+[data-person-pause-off]{position:fixed;top:max(8px, env(safe-area-inset-top));right:max(8px, env(safe-area-inset-right));z-index:1000011;margin:0;padding:4px 10px;border-radius:999px;background:transparent;color:#c3c8d2;border:1px solid rgba(195,200,210,.45);opacity:.3;font:500 11px/1.3 Inter,system-ui,sans-serif;pointer-events:none}
+[data-person-pause-off][hidden],body.nd-align-clean [data-person-pause-off],body.nd-live-pattern [data-person-pause-off],body.nd-latency-test [data-person-pause-off]{display:none !important}
+[data-live-resume]{position:fixed;left:50%;bottom:max(16px, env(safe-area-inset-bottom));transform:translateX(-50%);z-index:1000030;display:flex;gap:8px;align-items:center;max-width:min(92vw, 560px);padding:10px 12px;border-radius:999px;background:#1a2744;color:#f4f6fb;border:1px solid #527af0;box-shadow:0 10px 30px #000;font:600 16px/1.3 Inter,system-ui,sans-serif;pointer-events:auto;touch-action:manipulation}
+[data-live-resume][hidden]{display:none !important}
+input,select,textarea{font-size:16px}
+@media (pointer:coarse) and (min-height:500px){
+  .nd-live-bar .btn,.nd-live-reveal,[data-cancel-align],[data-reset-zoom]{min-height:56px;min-width:56px}
+}
+@media (max-height:520px){
+  h2{font-size:13px}
+  .nd-live-bar{gap:8px;padding:4px max(6px, env(safe-area-inset-right)) 4px max(6px, env(safe-area-inset-left))}
+  .nd-live-details{max-height:28dvh}
+  #nd-room-lab [data-spectrum]{height:32px}
+  .camera-frame{height:72px}
+  .btn,.form-select{min-height:48px;min-width:48px}
+}
+/* iPhone portrait (~390px): one scroll panel so the camera row is not trapped
+   under the controls. Toasts sit in the open band below the panel. */
+@media (max-width:520px){
+  .nd-live-stack{display:flex;flex-direction:column;position:fixed;top:0;left:0;right:0;z-index:1000003;max-height:min(70vh,70dvh);overflow-y:auto;-webkit-overflow-scrolling:touch;box-sizing:border-box;padding-top:env(safe-area-inset-top);padding-right:env(safe-area-inset-right);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);background:rgba(12,14,20,.94)}
+  .nd-live-chrome{position:static;display:contents;max-height:none;padding:0;z-index:auto;background:transparent;pointer-events:none}
+  .nd-live-bar{order:1}
+  .nd-live-details{order:2;max-height:none;overflow:visible}
+  #nd-camera-mode{order:3;position:static;right:auto;bottom:auto;width:100%;max-height:none;overflow:visible;z-index:auto;transform:none;border-radius:0;border-left:0;border-right:0}
+  .nd-live-status{order:4}
+  .nd-live-stack .btn,.nd-live-stack .form-select,#nd-camera-mode .btn,.nd-live-bar .btn{min-height:32px;min-width:32px;padding:4px 8px;font-size:13px;border-radius:10px}
+  .nd-live-bar,.viz-row,.viz-controls{gap:4px}
+  .form-range{min-height:32px}
+  [data-person-note],[data-person-pause-off],[data-debug-pair-banner],[data-debug-banner],[data-debug-takeover]{top:auto;bottom:max(8px,env(safe-area-inset-bottom));z-index:1000004}
+  [data-person-note],[data-debug-pair-banner]{left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));transform:none;max-width:none;text-align:center}
+  [data-align-banner]{z-index:1000004}
+  body.nd-live-hidden .nd-live-stack{display:contents;background:transparent;max-height:none;overflow:visible;pointer-events:none}
+}
+</style>
+<BaseLayout manifestHref="/neural-dance/live/manifest.webmanifest" standalone appleTitle="Neural Dance" />
+</head>
+<body class="nd-live nd-live-collapsed">
+<div id="nd-live-toast" data-align-banner hidden></div>
+<div data-align-cancel-zone hidden></div>
+<button class="btn" type="button" data-pattern-exit hidden>Exit pattern</button>
+<button class="btn" type="button" data-reset-zoom hidden>Reset zoom</button>
+<p data-align-readout hidden role="status"></p>
+<div data-align-controls>
+<button class="btn" type="button" data-place-corners hidden>Drag corners</button>
+<button class="btn" type="button" data-cancel-align hidden>Cancel align</button>
+</div>
+<p data-person-note hidden role="status">person in frame, detection paused</p>
+<p data-person-pause-off hidden role="status">Person pause off — sticker scans won’t trigger</p>
+<button type="button" data-debug-pair-banner hidden>Debug not paired — tap to pair</button>
+<div data-live-resume hidden role="status"><span data-live-resume-text>Tap to resume the camera, microphone, and projector.</span><button class="btn btn-primary" type="button" data-live-resume-go>Resume</button></div>
+<div data-debug-banner hidden><span data-debug-banner-text>Suggested tuning received</span><button class="btn btn-primary" type="button" data-debug-apply>Apply</button><button class="btn" type="button" data-debug-dismiss>Dismiss</button></div>
+<div data-debug-takeover hidden role="status"><span>Another device took over the debug feed</span><button class="btn btn-primary" type="button" data-debug-takeover-go>Take over</button></div>
+<svg data-align-lock-outline hidden viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="6,6 94,6 94,94 6,94" fill="none" stroke="#3dff9a" stroke-width="1.6"></polygon></svg>
+<h1 class="nd-live-sr" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Neural Dance live</h1>
+<section id="nd-room-lab" data-mic="off" aria-labelledby="room-music-title">
+  <div id="nd-room-projector"><canvas class="cursor-interaction" data-add-dancer data-stage width="1000" height="620" role="img" aria-label="Room-music dancers. They move when the microphone hears a kick, bass, snare, or hi-hat."></canvas><div data-align-flash hidden></div><div class="nd-cal-pattern" data-cal-pattern hidden><i data-cal="red">1 RED</i><i data-cal="green">2 TEAL</i><i data-cal="blue">3 BLUE</i><i data-cal="yellow">4 YELLOW</i></div></div>
+  <div class="nd-live-stack">
+  <div class="nd-live-chrome">
+  <div id="nd-live-dock" class="nd-live-bar">
+      <h2 id="room-music-title">Room music</h2>
+      <button class="btn btn-primary" type="button" data-action="play">Start</button>
+      <button class="btn" type="button" data-action="listen" data-state="off" aria-pressed="false">Listen</button>
+      <button class="btn" type="button" data-person-pause aria-pressed="true" aria-label="Pause detection when a person is in frame">Pause on</button>
+      <button class="btn" type="button" data-gap-scan aria-pressed="true" aria-label="Scan stickers automatically between songs">Gap scan on</button>
+      <button class="btn" type="button" data-capture-floor>Capture empty floor</button>
+      <button class="btn" type="button" data-bloom aria-pressed="true" aria-label="Energy bloom on the waveform">Bloom</button>
+      <button class="btn" type="button" data-action="align" aria-pressed="false">Align projector</button>
+      <button class="btn" type="button" data-align-pattern aria-pressed="false">Show alignment pattern</button>
+      <button class="btn" type="button" data-action="sim-dancers" data-sim-clear aria-pressed="false">Clear sim dancers</button>
+      <button class="btn" type="button" data-camera-flip>Flip camera</button>
+      <button class="btn" type="button" data-live="exit-align" hidden>Exit align</button>
+      <button class="btn" type="button" data-live="fullscreen">Fullscreen</button>
+      <button class="btn" type="button" data-live="collapse" aria-expanded="false">Show controls</button>
+      <button class="btn" type="button" data-live="hide">Hide controls</button>
+      <button class="btn" type="button" data-live="preview" aria-pressed="true">Preview</button>
+      <button class="btn" type="button" data-light-mode aria-pressed="false">Light: dot</button>
+      <button class="btn" type="button" data-live-action="frame-detect">Detect frame</button>
+      <button class="btn" type="button" data-live-action="frame-accept">Accept frame</button>
+      <button class="btn" type="button" data-live-action="painting-reference">Re-learn bare painting</button>
+      <button class="btn" type="button" data-live-action="frame-clear">Painting off</button>
+      <button class="btn" type="button" data-live-action="scan-stickers">Scan stickers</button>
+      <button class="btn" type="button" data-live-action="sticker-calibrate">Calibrate stickers</button>
+      <button class="btn" type="button" data-live-action="auto-align">Auto align</button>
+  </div>
+    <div class="nd-live-details" data-live-details>
+      <div class="viz-controls" data-add-dancer>
+        <label class="form-label">New dancer<select class="form-select" data-control="type"><option value="0">Kick</option><option value="1" selected>Bass</option><option value="2">Snare</option><option value="3">Hi-hat</option></select></label>
+        <label class="form-label">Gravity <output data-value="gravity">2.5×</output><input class="form-range" data-control="gravity" type="range" min="0" max="6" step="0.1" value="2.5" aria-label="Gravity"></label>
+        <label class="form-label">Wander <output data-value="wander">0.25</output><input class="form-range" data-control="wander" type="range" min="0" max="0.8" step="0.05" value="0.25" aria-label="Wander"></label>
+        <label class="form-label">Threshold <output data-value="threshold">1.40</output><input class="form-range" data-control="threshold" type="range" min="1" max="1.9" step="0.05" value="1.4" aria-label="Threshold"></label>
+        <label class="form-label">Peak hold <output data-value="peak">5.0 s</output><input class="form-range" data-control="peak" type="range" min="1" max="8" step="0.1" value="5" aria-label="Peak hold"></label>
+        <label class="form-label">Kick sensitivity <output data-value="sens-0">2.25×</output><input class="form-range" data-control="sens" data-band="0" type="range" min="0" max="3" step="0.05" value="2.25" aria-label="Kick sensitivity"></label>
+        <label class="form-label">Bass sensitivity <output data-value="sens-1">1.10×</output><input class="form-range" data-control="sens" data-band="1" type="range" min="0" max="3" step="0.05" value="1.1" aria-label="Bass sensitivity"></label>
+        <label class="form-label">Snare sensitivity <output data-value="sens-2">1.00×</output><input class="form-range" data-control="sens" data-band="2" type="range" min="0" max="3" step="0.05" value="1" aria-label="Snare sensitivity"></label>
+        <label class="form-label">Hi-hat sensitivity <output data-value="sens-3">3.00×</output><input class="form-range" data-control="sens" data-band="3" type="range" min="0" max="3" step="0.05" value="3" aria-label="Hi-hat sensitivity"></label>
+        <label class="form-label">Quiet threshold <output data-value="quiet">0.08</output><input class="form-range" data-control="quiet" type="range" min="0" max="0.4" step="0.01" value="0.08" aria-label="Quiet threshold"></label>
+        <label class="form-label">Hue spread (0 = near-white, max = full color) <output data-value="hue-spread">0.10</output><input class="form-range" data-control="hue-spread" type="range" min="0" max="1" step="0.05" value="0.10" aria-label="Hue spread (0 = near-white, max = full color)"></label>
+        <label class="form-label">Floor perspective (0 = flat, 1 = strong) <output data-value="floor-perspective">0.50</output><input class="form-range" data-control="floor-perspective" type="range" min="0" max="1" step="0.05" value="0.50" aria-label="Floor perspective (0 = flat, 1 = strong)"></label>
+        <label class="form-label">Hip figure-8 <output data-value="hip-eight">0.80</output><input class="form-range" data-control="hip-eight" type="range" min="0" max="1.5" step="0.05" value="0.80" aria-label="Hip figure-8"></label>
+        <label class="form-label">Shoulder figure-8 <output data-value="shoulder-eight">0.70</output><input class="form-range" data-control="shoulder-eight" type="range" min="0" max="1.5" step="0.05" value="0.70" aria-label="Shoulder figure-8"></label>
+        <label class="form-label">Hip twist <output data-value="hip-twist">0.80</output><input class="form-range" data-control="hip-twist" type="range" min="0" max="1.5" step="0.05" value="0.80" aria-label="Hip twist"></label>
+        <label class="form-label">Shoulder twist <output data-value="shoulder-twist">0.75</output><input class="form-range" data-control="shoulder-twist" type="range" min="0" max="1.5" step="0.05" value="0.75" aria-label="Shoulder twist"></label>
+        <label class="form-label">Max body turn <output data-value="max-body-turn">90°</output><input class="form-range" data-control="max-body-turn" type="range" min="0" max="90" step="5" value="90" aria-label="Max body turn"></label>
+        <label class="form-label">Turn frequency <output data-value="turn-freq">0.70</output><input class="form-range" data-control="turn-freq" type="range" min="0" max="1.5" step="0.05" value="0.70" aria-label="Turn frequency"></label>
+        <label class="form-label">Figure-8 depth <output data-value="eight-depth">0.85</output><input class="form-range" data-control="eight-depth" type="range" min="0" max="1.5" step="0.05" value="0.85" aria-label="Figure-8 depth"></label>
+        <label class="form-label">Figure-8 vertical <output data-value="eight-vert">0.80</output><input class="form-range" data-control="eight-vert" type="range" min="0" max="1.5" step="0.05" value="0.80" aria-label="Figure-8 vertical"></label>
+        <label class="form-label">Arms ← strings/synth <output data-value="arm-pad-sense">1.00</output><input class="form-range" data-control="arm-pad-sense" type="range" min="0" max="2" step="0.05" value="1.00" aria-label="Arms from strings and synth"></label>
+        <label class="form-label">Rave moves <output data-value="rave-moves">1.00</output><input class="form-range" data-control="rave-moves" type="range" min="0" max="1.5" step="0.05" value="1.00" aria-label="Rave moves"></label>
+        <label class="form-label">Inner bones <output data-value="inner-bones">Stage</output><input class="form-range" data-control="inner-bones" type="range" min="0" max="2" step="1" value="1" aria-label="Inner bones: off, stage figures, or all figures"></label>
+        <label class="form-label">Head looks <output data-value="head-look">On</output><input class="form-range" data-control="head-look" type="range" min="0" max="1" step="1" value="1" aria-label="Head looks"></label>
+        <button class="btn" type="button" data-action="sim-seed">Seed 24 sim dancers</button>
+      </div>
+      <canvas data-spectrum width="880" height="96" aria-label="Live microphone levels for kick, bass, mid, and treble"></canvas>
+      <div class="viz-row text-small"><span data-legend="0">● Kick<span class="meter"><i data-meter="0"></i></span></span><span data-legend="1">◆ Bass<span class="meter"><i data-meter="1"></i></span></span><span data-legend="2">■ Mid<span class="meter"><i data-meter="2"></i></span></span><span data-legend="3">▲ Treble<span class="meter"><i data-meter="3"></i></span></span><span data-floor>noise floor —</span></div>
+    </div>
+  <div class="nd-live-status" data-live-status>
+    <span data-mic role="status" aria-live="polite">Mic off</span>
+    <span data-live-corners role="status">Corners: unlocked</span>
+    <span data-live-painting role="status">Painting: off</span>
+    <span data-live-person role="status">Person: clear</span>
+    <span data-live-action-note role="status"></span>
+    <span data-beat role="status">120 BPM · 1</span>
+    <span data-status role="status" aria-live="polite">Loading room music…</span>
+  </div>
+  </div>
+<section id="nd-camera-mode" data-fine-tune="1" aria-labelledby="camera-mode-title">
+  <div class="viz-row"><h2 id="camera-mode-title">Camera</h2><button class="btn btn-primary" type="button" data-action="camera">Use camera</button><button class="btn" type="button" data-camera-flip>Flip camera</button><button class="btn" type="button" data-action="refresh">Refresh cameras</button><button class="btn" type="button" data-action="calibrate" aria-pressed="false">Fine-tune corners</button><button class="btn" type="button" data-action="markers" aria-pressed="false" disabled>Markers off</button><button class="btn" type="button" data-marker-clear>Clear markers</button><button class="btn" type="button" data-marker-reset>Reset defaults</button><button class="btn" type="button" data-camera-tune aria-pressed="false" aria-expanded="false">Tune</button></div>
+  <div class="camera-frame"><video data-preview autoplay muted playsinline aria-label="Live camera preview"></video><canvas data-overlay aria-hidden="true"></canvas></div>
+  <details data-debug-advanced>
+    <summary>Advanced</summary>
+    <div class="viz-row">
+      <button class="btn" type="button" data-debug-share aria-pressed="false">Share live debug</button>
+      <label class="text-small"><input type="checkbox" data-debug-auto checked> Auto-apply live tuning</label>
+    </div>
+    <div data-debug-panel hidden>
+      <p class="text-small">Room <strong data-debug-code></strong> <a data-debug-link href="/neural-dance/debug/">Viewer</a></p>
+      <p class="text-small"><button class="btn" type="button" data-debug-copy>Copy viewer link</button> <button class="btn" type="button" data-debug-rotate>New debug link</button> <span data-debug-status role="status"></span></p>
+    </div>
+  </details>
+  <div data-debug-pair>
+    <p class="text-small"><strong>Debug pairing</strong> (Safari, Chrome, and the Home Screen app each need their own pair — storage does not carry over)</p>
+    <p class="text-small" data-debug-pair-status role="status">Not paired</p>
+    <label class="text-small">Paste pairing link or key <input data-debug-pair-key type="text" autocomplete="off" spellcheck="false" aria-label="Paste pairing link or key" placeholder="Paste link or key"></label>
+    <button class="btn btn-primary" type="button" data-debug-pair-go>Pair debug</button>
+  </div>
+  <label class="form-label">Camera<select class="form-select" data-control="device" aria-label="Camera"><option value="">Choose a camera</option></select></label>
+  <div class="viz-controls">
+    <div class="form-label">Track
+      <div class="mode-toggle" role="group" aria-label="Track">
+        <button class="btn" type="button" data-mode="both" aria-pressed="true">Both</button>
+        <button class="btn" type="button" data-mode="pink" aria-pressed="false">Pink notes</button>
+        <button class="btn" type="button" data-mode="stickers" aria-pressed="false">Dancer stickers</button>
+      </div>
+    </div>
+    <label class="form-label">Hue range (higher = wider color match) <output data-value="hue">32°</output><input class="form-range" data-control="hue" type="range" min="18" max="80" step="1" value="32" aria-label="Hue range (higher = wider color match)"></label>
+    <label class="form-label">Note sensitivity (higher = fainter notes) <output data-value="sat">0.45</output><input class="form-range" data-control="sat" type="range" min="0.25" max="1" step="0.01" value="0.45" aria-label="Note sensitivity (higher = fainter notes)"></label>
+    <label class="form-label">Smallest note size (lower = detects smaller notes) <output data-value="size">22 px</output><input class="form-range" data-control="size" type="range" min="4" max="200" step="1" value="22" aria-label="Smallest note size (lower = detects smaller notes)"></label>
+    <label class="form-label">Sticker sensitivity (higher = fainter stickers) <output data-value="sticker">0.50</output><input class="form-range" data-control="sticker" type="range" min="0" max="1" step="0.01" value="0.5" aria-label="Sticker sensitivity (higher = fainter stickers)"></label>
+  </div>
+  <p class="text-small" data-status role="status" aria-live="polite">Camera off</p>
+</section>
+  </div>
+<span data-nd-build title="Build">…</span>
+</section>
+<button class="btn nd-live-reveal" type="button" data-live="reveal" hidden>Controls</button>
+<p data-wake-note hidden role="status">screen may sleep</p>
+<script type="module" src="/neural-dance/live-page.js" is:inline></script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+<!doctype html><html><body style="margin:0;background:#000"><canvas id="c" width="900" height="420"></canvas>
+<script type="module">
+import {createSilhouetteShow} from '/neural-dance/src/silhouette.js';
+import {stickerContour} from '/tests/helpers-sticker-figure.mjs';
+const c = document.getElementById('c'), ctx = c.getContext('2d');
+const show = createSilhouetteShow(); show.setMode('silhouette');
+const poses = ['dancing', 'tPose', 'armsUp', 'oneUp'];
+const st = poses.map((p, i) => ({id: 40 + i, type: i % 4, kind: 'sticker', x: 130 + i * 210, y: 220, pose: p}));
+for (const s of st) s.contour = stickerContour(s.pose, {H: 88, cx: s.x, top: 220 - 44, W: 900, Hh: 420}).contour;
+window.renderAt = (sec, music) => {
+  let t = 0; const fps = 30;
+  for (let i = 0; i < sec * fps; i++) {
+    t += 1 / fps; const now = 1000 + t * 1000;
+    const m = music(t);
+    show.setHush(!m && t > 1, now);
+    if (m && Math.floor(t / 0.5) !== Math.floor((t - 1 / fps) / 0.5)) show.beat(now, 13);
+    const e = m ? 0.9 * (0.75 + 0.35 * (t % 0.5 < 0.08)) : 0;
+    ctx.fillStyle = '#000'; ctx.fillRect(0, 0, c.width, c.height);
+    // the physical stickers (white outline)
+    ctx.strokeStyle = 'rgba(255,255,255,0.9)'; ctx.lineWidth = 1.5;
+    for (const s of st) { ctx.beginPath(); s.contour.forEach((p, j) => j ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath(); ctx.stroke(); }
+    show.paint(ctx, st.map(s => ({id: s.id, type: s.type, kind: 'sticker', x: s.x, y: s.y, contour: s.contour})), {now, levels: [e, e / 2, e, e], network: st.map(s => ({id: s.id, received: m ? 0.8 : 0})), songOpen: m, xy: (x, y) => ({x, y})});
+  }
+  return show.figureHeights().map(f => ({id: f.id, w: f.stickerPose}));
+};
+window.ready = true;
+</script></body></html>

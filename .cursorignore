@@ -1,0 +1,19 @@
+# Build output
+dist/
+
+# Vendor libraries and local installs
+node_modules/
+neural-dance/vendor/
+neural-dance/nn/ort/
+.venv-listen-label/
+tools/listen-label/.venv/
+
+# Fixtures and large media
+tests/fixtures/
+*.wasm
+*.onnx
+*.ppm
+*.wav
+*.mp4
+*.jpeg
+*.jpg

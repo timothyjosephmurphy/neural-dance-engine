@@ -1,0 +1,352 @@
+---
+// Copyright (c) 2026 TJ Murphy / Vermillion Aurora Productions
+// SPDX-License-Identifier: MIT
+// Unlisted diagnostic viewer. The studio room uses #k= once, then this device.
+// A Share live debug link still passes room and key in the query string.
+// No site header.
+---
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="nd-build" content="__ND_BUILD__" />
+<title>Neural Dance debug | TJ Murphy</title>
+<meta name="description" content="Private live view of a Neural Dance camera and projector." />
+<link href="/fonts/fonts.css" rel="stylesheet">
+<style is:inline>
+  .hint { display:block; color:#8b93a8; font-size:12px; font-weight:400; }
+  label.is-off { opacity:.45; }
+*{box-sizing:border-box}
+html,body{margin:0;background:#07080c;color:#f4f6fb;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+html,body{overflow-x:clip;max-width:100%}
+body{min-height:100vh}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:#9baef0}
+main{width:100%;max-width:1100px;margin:0 auto;padding:20px 16px 48px;min-width:0}
+main{padding-top:max(20px,env(safe-area-inset-top));padding-right:max(16px,env(safe-area-inset-right));padding-bottom:max(48px,env(safe-area-inset-bottom));padding-left:max(16px,env(safe-area-inset-left))}
+.frame,.panel,.controls,label,canvas,table,pre,p{max-width:100%;min-width:0}
+@media (max-width:520px){main{padding-left:max(12px,env(safe-area-inset-left));padding-right:max(12px,env(safe-area-inset-right))}.frame{padding:8px}}
+h1{font-size:28px;font-weight:560;letter-spacing:-.02em;margin:0 0 4px}
+h2{font-size:17px;font-weight:620;margin:0;color:#f4f6fb}
+h3{font-size:13px;font-weight:620;letter-spacing:.04em;text-transform:uppercase;color:#8b93a8;margin:16px 0 8px}
+p{line-height:1.45}
+.lead{color:#aab0c0;margin:6px 0 0;font-size:14px}
+.scan-shots{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.scan-shots figure{margin:0;flex:1 1 140px;min-width:0;max-width:100%}
+.scan-shots figcaption{font-size:12px;color:#8b93a8;margin-top:4px}
+.scan-shots canvas{width:100%;height:auto;background:#11141c;border-radius:6px;display:block}
+.scan-blobs{margin:8px 0 0;white-space:pre-wrap;font:12px/1.45 ui-monospace,monospace;color:#c5cad6;max-height:180px;overflow:auto}
+.kicker{margin:0 0 14px;color:#8b93a8;font-size:14px}
+.frames{display:grid;grid-template-columns:1fr;gap:12px;align-items:start}
+@media (min-width:860px){.frames{grid-template-columns:1fr 1fr}}
+.frame{min-width:0;background:#10121a;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:12px}
+.frame canvas,[data-debug-sim-canvas],[data-debug-audio-graph]{display:block;width:100%;height:auto;max-width:100%;background:#05060a;border-radius:12px}
+[data-debug-listen-bands],[data-debug-precision]{white-space:pre-wrap;margin:0;font-size:12px}
+.seg>.btn{min-width:0}
+.btn{border:1px solid rgba(255,255,255,.18);background:#171a24;color:#f4f6fb;border-radius:12px;padding:10px 14px;min-height:48px;min-width:0;touch-action:manipulation;position:relative;z-index:3}
+button{touch-action:manipulation}
+.controls{position:relative;z-index:2;display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.controls>.btn,.seg>.btn{flex:1 1 180px;max-width:100%}
+.frame canvas{position:relative;z-index:0}
+[data-debug-camera]{touch-action:none;cursor:crosshair}
+.btn-primary{background:#3158b8;border-color:#527af0}
+.btn[aria-pressed="true"]{background:#1d6b45;border-color:#3dba7a}
+button[data-phase="pressed"],button[data-phase="working"]{box-shadow:inset 0 0 0 2px #ffd166}
+button[data-phase="done"]{box-shadow:inset 0 0 0 2px #3dff9a}
+button:focus,input:focus,select:focus,summary:focus,a:focus{outline:none}
+button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible{outline:2px solid #9baef0;outline-offset:3px}
+.panel{margin-top:12px;padding:14px;background:#10121a;border:1px solid rgba(255,255,255,.12);border-radius:16px}
+.panel>.lead{margin-bottom:12px}
+.summary,.hover{color:#d5deff;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.meters{display:grid;gap:8px;margin:10px 0}
+.meter{display:flex;align-items:center;gap:8px;color:#aab0c0;min-width:0}
+.meter b{display:inline-block;width:52px;font-weight:550;flex:none}
+.meter i{display:block;height:8px;flex:1 1 auto;max-width:160px;min-width:48px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}
+.meter i span{display:block;height:100%;width:100%;background:#81b7fc;transform:scaleX(0);transform-origin:left center}
+table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums;table-layout:fixed}
+[data-debug-table-wrap]{max-height:220px;max-width:100%;overflow:auto;border:1px solid rgba(255,255,255,.10);border-radius:12px;margin-top:8px}
+[data-debug-table-wrap] table{margin:0}
+[data-debug-table-wrap] thead th{position:sticky;top:0;background:#10121a;z-index:1}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.1);overflow-wrap:anywhere}
+th{color:#aab0c0;font-weight:550}
+label{display:grid;gap:6px;color:#c5cada;font-size:14px;min-width:0;flex:1 1 100%}
+@media (min-width:800px){.controls>label{flex:1 1 240px}}
+input[type="range"]{width:100%;accent-color:#81b7fc;height:28px}
+input[type="number"],select{width:100%;max-width:100%;background:#0c0e14;border:1px solid rgba(255,255,255,.18);border-radius:10px;min-height:48px;padding:8px 10px}
+.seg{display:flex;flex-wrap:wrap;gap:8px;min-width:0;flex:1 1 100%}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;margin-bottom:4px}
+.bar h2{flex:1 1 auto}
+.bar .btn{flex:0 1 auto}
+details.fold{margin-top:12px;min-width:0}
+details.fold>summary{list-style:none;display:flex;align-items:center;gap:8px;min-height:48px;padding:12px 14px;border-radius:12px;background:#171a24;border:1px solid rgba(255,255,255,.18);font-weight:600;cursor:pointer;touch-action:manipulation}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::after{content:"Show";margin-left:auto;color:#9baef0;font-weight:550;font-size:14px}
+details.fold[open]>summary::after{content:"Hide"}
+details.fold[open]>summary{margin-bottom:12px}
+.mode{display:flex;flex-wrap:wrap;gap:8px;flex:1 1 100%}
+[data-debug-missing]{max-width:640px}
+[data-person-note]{margin:8px 0 0;padding:8px 12px;border-radius:12px;background:#3a3420;color:#f3e2b3;border:1px solid #c9a24a;font-size:14px;max-width:100%}
+[data-debug-build-line] code{font:600 12px/1.2 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;letter-spacing:.04em}
+[data-debug-link-status]{font-weight:600;margin:8px 0}
+[data-debug-link-status][data-state="live"]{color:#b7f0c8}
+[data-debug-link-status][data-state="stalled"],[data-debug-link-status][data-state="reconnecting"],[data-debug-link-status][data-state="connecting"]{color:#f3e2b3;background:#3a3420;border:1px solid #c9a24a;padding:8px 12px;border-radius:12px;max-width:100%}
+[data-debug-build-warn]{color:#f3e2b3;background:#3a3420;border:1px solid #c9a24a;padding:8px 12px;border-radius:12px;max-width:100%}
+[hidden]{display:none !important}
+</style>
+</head>
+<body>
+<main>
+  <h1>Neural Dance debug</h1>
+  <p class="kicker">Align the projector, check tracking and audio, and watch the live room.</p>
+  <p class="lead" data-debug-build-line>Debug build <code data-debug-build-local>—</code> · phone <code data-debug-build-phone>—</code> · server <code data-debug-build-server>—</code></p>
+  <p class="lead" data-debug-build-warn hidden role="status">Build mismatch: this debug page and the phone are on different SHAs. Reload the live page (or wait for auto-reload) so tuning matches the code under test.</p>
+  <p class="lead" data-debug-missing hidden>Nothing is streaming. Open the studio debug link with #k= once on this device, or use a Share live debug link.</p>
+  <div data-debug-app hidden>
+    <p class="lead">Room <strong data-debug-room></strong>. Open this page from the phone’s Share live debug link. Camera and stage update about once a second.</p>
+    <div class="bar">
+      <p class="lead" data-debug-link-status data-state="connecting" role="status">Connecting…</p>
+      <button class="btn" type="button" data-debug-reload>Reload live page</button>
+    </div>
+    <p data-person-note hidden role="status">person in frame, detection paused</p>
+    <div class="frames">
+      <section class="frame">
+        <h2>Camera</h2>
+        <p class="lead">Tap to place a dancer. Drag to move. Tap a dancer, then its ×, to remove it. Drag a numbered corner to adjust the stage.</p>
+        <canvas data-debug-camera width="480" height="253" aria-label="Live camera frame with the homography quad and detected blobs"></canvas>
+        <p class="hover" data-debug-hover>A still tap never moves a corner.</p>
+      </section>
+      <section class="frame">
+        <h2>Projected stage</h2>
+        <p class="lead">What the projector is drawing. Tap here to place a sticker on the stage.</p>
+        <canvas data-debug-stage width="480" height="270" aria-label="What the projector is drawing, with detected markers"></canvas>
+      </section>
+    </div>
+    <section class="panel">
+      <h2>Align projector</h2>
+      <p class="lead">Auto align flashes stripes and dots for about 15 seconds and does not need stickers. Cancel stops an align in progress. The pattern is there when you want to see the grid.</p>
+      <div class="controls">
+        <button class="btn btn-primary" type="button" data-debug-action="auto-align">Auto align (structured light)</button>
+        <button class="btn" type="button" data-debug-action="align">Align projector</button>
+        <button class="btn" type="button" data-debug-action="cancel-align">Cancel align</button>
+        <button class="btn" type="button" data-debug-action="toggle-pattern">Show alignment pattern</button>
+      </div>
+      <details class="fold">
+        <summary>More alignment checks</summary>
+        <p class="lead">Crosshair check: Show, put a sticker on each crosshair, Measure, then Fix if it is off. Walk check lights one mark at a time. Recheck looks at the center dot for about 2 seconds.</p>
+        <div class="controls" data-debug-precision-actions>
+          <button class="btn" type="button" data-debug-action="verify-align">Check stickers (fix offset)</button>
+          <button class="btn" type="button" data-debug-action="align-border">Align to screen border</button>
+          <button class="btn" type="button" data-debug-action="xhair-show">Crosshairs: show</button>
+          <button class="btn" type="button" data-debug-action="xhair-measure">Crosshairs: measure</button>
+          <button class="btn" type="button" data-debug-action="xhair-fix">Fix from last check</button>
+          <button class="btn" type="button" data-debug-action="walk-start">Walk check (5 marks)</button>
+          <button class="btn" type="button" data-debug-action="walk-next">Walk: next mark</button>
+          <button class="btn" type="button" data-debug-action="recheck-align">Recheck (1 point)</button>
+          <button class="btn" type="button" data-debug-action="restore-calibration">Restore saved alignment</button>
+          <button class="btn" type="button" data-debug-action="align-grid" data-debug-grid>Refine grid: 3×3</button>
+          <button class="btn" type="button" data-debug-action="precision-stop">Stop check</button>
+          <label>Stage width (cm)
+            <input type="number" min="50" max="2000" step="1" data-debug-stage-cm placeholder="e.g. 420" title="Measure the projected image width on the floor; sent when you leave the box" />
+          </label>
+        </div>
+      </details>
+    </section>
+    <section class="panel" data-debug-painting-panel>
+      <h2>Painting surface</h2>
+      <p class="lead">Detect the frame, Accept to lock its inner corners and black out the outside, then step out for about 2 seconds so the bare painting is learned. Corners mode starts on: drag F1–F4 to the frame opening, or Snap projector to frame so the pink quad matches it.</p>
+      <div class="controls">
+        <button class="btn btn-primary" type="button" data-debug-action="frame-detect">Detect frame</button>
+        <button class="btn" type="button" data-debug-frame-accept>Accept frame</button>
+        <button class="btn" type="button" data-debug-action="frame-retry">Retry</button>
+        <button class="btn" type="button" data-debug-local data-debug-corners-mode aria-pressed="true">Corners mode: on (drag numbered corners)</button>
+        <button class="btn" type="button" data-debug-action="snap-projector-frame">Snap projector to frame</button>
+        <button class="btn" type="button" data-debug-action="painting-reference">Re-learn bare painting</button>
+        <button class="btn" type="button" data-debug-action="frame-clear">Painting off</button>
+        <div class="seg" role="group" aria-label="Sticker color">
+          <button class="btn" type="button" data-debug-sticker-color="dark" aria-pressed="false">Stickers: dark</button>
+          <button class="btn" type="button" data-debug-sticker-color="white" aria-pressed="false">Stickers: white</button>
+          <button class="btn" type="button" data-debug-sticker-color="auto" aria-pressed="false">Stickers: auto</button>
+        </div>
+        <button class="btn btn-primary" type="button" data-debug-action="scan-stickers">Scan stickers</button>
+        <button class="btn" type="button" data-debug-action="sticker-calibrate">Calibrate stickers</button>
+        <button class="btn" type="button" data-debug-action="sticker-crosshair" aria-pressed="false">Sticker crosshairs</button>
+      </div>
+      <p class="lead" data-debug-painting-status aria-live="polite">Painting surface: off</p>
+      <p class="lead" data-debug-visit role="status">Stickers: Clear</p>
+      <p class="lead" data-debug-person role="status">Person: clear</p>
+      <div data-debug-last-scan>
+        <p class="lead" data-debug-still-meta>Last scan: none yet</p>
+        <div class="scan-shots">
+          <figure><canvas data-debug-still-before width="180" height="120"></canvas><figcaption>Before</figcaption></figure>
+          <figure><canvas data-debug-still-after width="180" height="120"></canvas><figcaption>After</figcaption></figure>
+          <figure><canvas data-debug-still-diff width="180" height="120"></canvas><figcaption>Diff</figcaption></figure>
+        </div>
+        <pre class="scan-blobs" data-debug-still-blobs></pre>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Room actions</h2>
+      <p class="lead">These apply on the projector as soon as you tap. Listen uses the phone microphone. Dancer is the live look until you pick another.</p>
+      <div class="seg" role="group" aria-label="Projection">
+        <button class="btn" type="button" data-debug-draw="dots" aria-pressed="false">Dots</button>
+        <button class="btn" type="button" data-debug-draw="silhouette" aria-pressed="false">Sticker silhouettes</button>
+        <button class="btn" type="button" data-debug-draw="beat" aria-pressed="false">Beat</button>
+        <button class="btn" type="button" data-debug-draw="full" aria-pressed="true">Dancer</button>
+      </div>
+      <div class="controls" data-debug-actions>
+        <button class="btn btn-primary" type="button" data-debug-listen aria-pressed="false">Listen</button>
+        <button class="btn" type="button" data-debug-run aria-pressed="false">Show: paused</button>
+        <button class="btn" type="button" data-debug-markers aria-pressed="false">Markers: off</button>
+        <button class="btn" type="button" data-debug-person-pause aria-pressed="true">Person pause: on</button>
+        <button class="btn" type="button" data-debug-gap-scan aria-pressed="true">Between-songs scan: on</button>
+        <button class="btn" type="button" data-debug-bloom aria-pressed="true">Bloom: on</button>
+        <button class="btn" type="button" data-debug-ripple aria-pressed="true">Ripple: on</button>
+        <button class="btn" type="button" data-debug-insets aria-pressed="true">Insets: on</button>
+        <button class="btn" type="button" data-debug-action="clear-markers">Clear auto markers</button>
+        <button class="btn" type="button" data-debug-local data-debug-remove-mode aria-pressed="false">Remove mode: off</button>
+        <button class="btn" type="button" data-debug-local data-debug-clear-manual>Remove hand-placed markers…</button>
+        <button class="btn" type="button" data-debug-action="sim-seed">Seed 24 sim dancers</button>
+        <button class="btn" type="button" data-debug-action="clear-sim">Clear sim dancers</button>
+        <label>Band for next added dancer
+          <select data-debug-control="type">
+            <option value="0">Kick</option>
+            <option value="1" selected>Bass</option>
+            <option value="2">Snare</option>
+            <option value="3">Hi-hat</option>
+          </select>
+        </label>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Telemetry</h2>
+      <p class="summary" data-debug-summary>Waiting for a frame.</p>
+      <h3>Audio</h3>
+      <div class="meters" aria-label="Audio meters">
+        <div class="meter"><b>Kick</b><i><span data-debug-meter="kick"></span></i></div>
+        <div class="meter"><b>Bass</b><i><span data-debug-meter="bass"></span></i></div>
+        <div class="meter"><b>Snare</b><i><span data-debug-meter="snare"></span></i></div>
+        <div class="meter"><b>Hat</b><i><span data-debug-meter="hat"></span></i></div>
+      </div>
+      <canvas data-debug-audio-graph width="600" height="110" aria-label="Band levels, 10 Hz"></canvas>
+      <p class="summary" data-debug-audio-rate>Audio feed: waiting (runs while this page is open)</p>
+      <div class="controls">
+        <label>Kick sensitivity <small class="hint">0 mutes · also sets string size</small> <input data-debug-control="sens-0" type="range" min="0" max="3" step="0.05" value="2.25"></label>
+        <label>Bass sensitivity <input data-debug-control="sens-1" type="range" min="0" max="3" step="0.05" value="1.1"></label>
+        <label>Snare sensitivity <input data-debug-control="sens-2" type="range" min="0" max="3" step="0.05" value="1"></label>
+        <label>Hi-hat sensitivity <input data-debug-control="sens-3" type="range" min="0" max="3" step="0.05" value="3"></label>
+        <button class="btn" type="button" data-debug-sens-reset title="Kick 2.25 · Bass 1.1 · Snare 1.0 · Hi-hat 3">Reset band sens to recommended</button>
+      </div>
+      <p class="summary" data-debug-listen-info>Listen: no data</p>
+      <pre class="summary" data-debug-listen-bands></pre>
+      <h3>Room</h3>
+      <p class="summary" data-debug-dancers>Waiting for dancer counts.</p>
+      <p class="summary" data-debug-pose>Pose: waiting for activation.</p>
+      <p class="summary" data-debug-mic>Mic off</p>
+      <p class="summary" data-debug-lag>Projector lag —</p>
+      <p class="summary" data-debug-quad>Quad unlocked</p>
+      <p class="summary" data-debug-refine>Align refine: not run yet</p>
+      <p class="summary" data-debug-verify>Sticker check: not run yet</p>
+      <pre class="summary" data-debug-precision>Precision: not run yet</pre>
+      <p class="summary" data-debug-drift>Drift: no sticker anchors yet</p>
+      <p class="summary" data-debug-ok-hand>OK hand: idle</p>
+      <p class="summary" data-debug-sticker-flash>Scan stickers: not run yet</p>
+      <p class="summary" data-debug-gap-scan-status>Between-songs scan: not run yet</p>
+      <p class="summary" data-debug-ripple-status>Ripple: on · —</p>
+      <p class="summary"><span data-debug-source>silent</span> · <span data-debug-gate>Silence gate closed</span> · <span data-debug-floor>noise floor —</span></p>
+      <div data-debug-table-wrap>
+      <table data-debug-table>
+        <thead><tr><th>Kind</th><th>Grid</th><th>Stage</th><th>Area</th><th>RGB</th><th>WB ratio</th></tr></thead>
+        <tbody><tr><td colspan="6">No blobs in the latest frame.</td></tr></tbody>
+      </table>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Look and motion</h2>
+      <p class="lead">Three presets cover the range. Each one sends to the room. Hue spread is the color amount. Open Advanced for a single value.</p>
+      <h3>Look</h3>
+      <div class="seg" role="group" aria-label="Look preset">
+        <button class="btn" type="button" data-debug-preset="look" data-preset="soft">Soft</button>
+        <button class="btn" type="button" data-debug-preset="look" data-preset="show" aria-pressed="true">Show</button>
+        <button class="btn" type="button" data-debug-preset="look" data-preset="vivid">Vivid</button>
+      </div>
+      <div class="controls">
+        <label>Hue spread <small class="hint">0 = near-white · max = full color</small> <input data-debug-control="hue-spread" type="range" min="0" max="1" step="0.05" value="0.10"></label>
+      </div>
+      <h3>Motion</h3>
+      <div class="seg" role="group" aria-label="Motion preset">
+        <button class="btn" type="button" data-debug-preset="motion" data-preset="calm">Calm</button>
+        <button class="btn" type="button" data-debug-preset="motion" data-preset="show" aria-pressed="true">Show</button>
+        <button class="btn" type="button" data-debug-preset="motion" data-preset="loose">Loose</button>
+      </div>
+      <h3>Pulses</h3>
+      <div class="seg" role="group" aria-label="Pulse preset">
+        <button class="btn" type="button" data-debug-preset="pulse" data-preset="tight">Tight</button>
+        <button class="btn" type="button" data-debug-preset="pulse" data-preset="show" aria-pressed="true">Show</button>
+        <button class="btn" type="button" data-debug-preset="pulse" data-preset="wild">Wild</button>
+      </div>
+      <div class="controls" style="margin-top:12px">
+        <button class="btn btn-primary" type="button" data-debug-send>Send tuning to room</button>
+      </div>
+      <p class="summary" data-debug-sent></p>
+    </section>
+    <details class="fold panel">
+      <summary>Advanced tuning</summary>
+      <p class="lead">Every slider still reaches the room. Presets above set a group of these at once.</p>
+      <div class="controls">
+        <label title="How strongly pulse trails fall toward dancers">Pulse gravity <small class="hint">trail pull toward dancers</small> <input data-debug-control="gravity" type="range" min="0" max="6" step="0.1" value="2.5"></label>
+        <label title="Random drift of pulse trails">Pulse wander <small class="hint">trail drift</small> <input data-debug-control="wander" type="range" min="0" max="0.8" step="0.05" value="0.25"></label>
+        <label title="Energy a dancer needs before it re-fires a pulse">Re-fire threshold <small class="hint">higher = fewer re-fires</small> <input data-debug-control="threshold" type="range" min="1" max="1.9" step="0.05" value="1.4"></label>
+        <label title="How long a dancer stays at peak (sending pulses) before its cooldown">Peak hold <small class="hint">seconds a dancer stays at peak before resting</small> <input data-debug-control="peak" type="range" min="1" max="8" step="0.1" value="5"></label>
+        <label>Quiet threshold <small class="hint">strings rest below this</small> <input data-debug-control="quiet" type="range" min="0" max="0.4" step="0.01" value="0.08"></label>
+        <label>Note sensitivity <input data-debug-control="note" type="range" min="0.25" max="1" step="0.01" value="0.45"></label>
+        <label>Sticker sensitivity <small class="hint">0.1–1 all apply (lit frames ease in above 0.5); latched stickers stay until Rescan</small> <input data-debug-control="sticker" type="range" min="0" max="1" step="0.01" value="0.5"></label>
+        <label>Person sensitivity <input data-debug-control="person" type="range" min="0" max="1" step="0.01" value="0.35"></label>
+        <p class="summary" data-continuous-note>Continuous scan: —</p>
+        <label>Scan every (s) <input data-debug-control="scan-interval" type="range" min="2" max="12" step="0.5" value="4"></label>
+        <label>Scan flash (ms) <input data-debug-control="scan-duration" type="range" min="150" max="250" step="10" value="200"></label>
+        <label>Bloom intensity <small class="hint">dancer glow · low lets the string read</small> <input data-debug-control="bloom" type="range" min="0" max="2" step="0.05" value="0.18"></label>
+        <label>Ripple intensity <input data-debug-control="ripple-intensity" type="range" min="0" max="1" step="0.05" value="0.20"></label>
+        <label>Floor perspective <small class="hint">0 = flat · 0.50 = moderate · 1 = strong</small> <input data-debug-control="floor-perspective" type="range" min="0" max="1" step="0.05" value="0.50"></label>
+        <label>Body motion slowdown <input data-debug-control="body-slowdown" type="range" min="1" max="8" step="0.5" value="4"></label>
+        <label>Aura width <small class="hint">glow spread</small> <input data-debug-control="bloom-aura" type="range" min="8" max="64" step="1" value="22"></label>
+        <label>Hip figure-8 <small class="hint">hip loop</small> <input data-debug-control="hip-eight" type="range" min="0" max="1.5" step="0.05" value="0.80"></label>
+        <label>Shoulder figure-8 <small class="hint">contra-body roll · scales with activation</small> <input data-debug-control="shoulder-eight" type="range" min="0" max="1.5" step="0.05" value="0.70"></label>
+        <label>Hip twist <small class="hint">yaw about vertical · ±20°</small> <input data-debug-control="hip-twist" type="range" min="0" max="1.5" step="0.05" value="0.80"></label>
+        <label>Shoulder twist <small class="hint">contra-rotate · ±25° relative</small> <input data-debug-control="shoulder-twist" type="range" min="0" max="1.5" step="0.05" value="0.75"></label>
+        <label>Max body turn <small class="hint">facing stop, degrees</small> <input data-debug-control="max-body-turn" type="range" min="0" max="90" step="5" value="90"></label>
+        <label>Turn frequency <small class="hint">how often they pivot</small> <input data-debug-control="turn-freq" type="range" min="0" max="1.5" step="0.05" value="0.70"></label>
+        <label>Figure-8 depth <small class="hint">front-back Lissajous, z</small> <input data-debug-control="eight-depth" type="range" min="0" max="1.5" step="0.05" value="0.85"></label>
+        <label>Figure-8 vertical <small class="hint">up-down Lissajous, y</small> <input data-debug-control="eight-vert" type="range" min="0" max="1.5" step="0.05" value="0.80"></label>
+        <label>Arms ← strings/synth <small class="hint">Melody/Pad 500–4000 Hz</small> <input data-debug-control="arm-pad-sense" type="range" min="0" max="2" step="0.05" value="1.00"></label>
+        <label>Note hue range <small class="hint">camera color match, not dancer color</small> <input data-debug-control="hue" type="range" min="18" max="80" step="1" value="32"></label>
+        <label>Smallest note <input data-debug-control="size" type="range" min="4" max="200" step="1" value="22"></label>
+        <button class="btn" type="button" data-debug-chrome aria-pressed="false">Phone controls: shown</button>
+        <button class="btn" type="button" data-debug-action="reset-camera">Reset camera defaults</button>
+      </div>
+    </details>
+    <section class="panel" data-debug-sim-preview>
+      <div class="bar">
+        <h2>Sim dancer</h2>
+        <button class="btn" type="button" data-debug-local data-debug-sim-toggle aria-pressed="false">Show one sim dancer</button>
+      </div>
+      <p class="lead">Local preview at the bottom of this page. Off until you ask. It does not change the projector.</p>
+      <div class="controls">
+        <button class="btn" type="button" data-debug-local data-debug-sim-listen aria-pressed="false">Listen</button>
+      </div>
+      <p class="lead" data-debug-sim-listen-note>Listen is off. Turning it on asks this device for the microphone and drives the preview from that audio.</p>
+      <p class="lead" data-debug-sim-note hidden>About 12 frames a second. Room meters are used until Listen is on.</p>
+      <canvas data-debug-sim-canvas width="360" height="220" hidden aria-label="One simulated dancer using the current look and motion settings"></canvas>
+      <details class="fold" data-debug-dancer-details>
+        <summary>Dancer details</summary>
+        <p class="lead">The side sim’s body controls, for this preview only.</p>
+        <div class="controls" data-sim-details></div>
+      </details>
+    </section>
+  </div>
+</main>
+<script type="module" src="/neural-dance/debug-viewer.js" is:inline></script>
+</body>
+</html>

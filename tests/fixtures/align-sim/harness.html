@@ -1,0 +1,142 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>Align sim</title>
+<style>html,body{margin:0;background:#000;width:100%;height:100%;overflow:hidden}
+#nd-room-projector{position:fixed;inset:0}
+[data-align-flash]{position:absolute;inset:0}
+[data-align-flash][data-mode="black"]{background:#000}
+[data-align-flash][data-mode="white"]{background:#fff}
+[data-align-flash][hidden],[data-cal-pattern][hidden]{display:none}
+</style></head>
+<body>
+<script type="module">
+// One simulated Align run. ?root=<prefix> picks which live-show.js to test
+// (the PR or the baseline main), ?seed= the room/camera profile.
+const params = new URLSearchParams(location.search);
+const root = params.get('root') || '/';
+const seed = +(params.get('seed') || 1);
+const harsh = +(params.get('harsh') || 1);
+const refine = params.get('refine') === '1';
+const {SimCamera, trialProfile, solveH, rng} = await import('./sim-camera.js');
+if (params.get('nobase')) globalThis.__ndNoBase = true;
+const show = await import(root + 'neural-dance/live-show.js');
+const html = `
+<div id="nd-room-projector"><div data-align-flash hidden></div><div data-cal-pattern hidden></div></div>
+<div id="nd-room-lab"><span data-status></span><button data-action="align">Align projector</button></div>
+<div id="nd-camera-mode-stub"></div>
+<div id="nd-live-toast" data-align-banner hidden></div>
+<div data-align-readout hidden></div>`;
+document.body.insertAdjacentHTML('beforeend', html);
+const camRoot = document.getElementById('nd-camera-mode-stub');
+camRoot.id = 'nd-camera-mode';
+const profile = trialProfile(seed, harsh);
+if (params.get('nopill')) document.head.insertAdjacentHTML('beforeend', '<style>[data-align-progress]{visibility:hidden}</style>');
+const sim = new SimCamera(profile, document);
+const log = {commits: [], grabs: 0, progress: [], overlays: 0};
+camRoot.neuralDanceCamera = {
+  async ensureCamera() {},
+  grabFrame() { log.grabs++; return sim.grabFrame(); },
+  setNormalizedCorners(corners, message) { log.commits.push({corners: corners.map(p => ({x: +p.x, y: +p.y})), message, t: performance.now()}); return true; },
+  setMarkersEnabled() { return true; },
+  cancelCalibration() {},
+  setScanReference() {},
+  setAlignOverlay(r) { log.overlays++; if (r && r.marks && params.get('trace')) (log.marks = log.marks || []).push({t: Math.round(performance.now() - sim.t0), g: +sim.gain.toFixed(2), m: r.marks.map(m => m ? [+(m.x * 480).toFixed(1), +(m.y * 360).toFixed(1)] : null)}); },
+  setAlignProgress(state) { if (state) log.progress.push(state); },
+  setRefineReport() {},
+  debugState() { return {quad: null}; },
+  suspendScan() {}
+};
+window.__run = async () => {
+  const t0 = performance.now();
+  await show.beginAlign(document, {refine});
+  const ms = performance.now() - t0;
+  sim.stop();
+  const truth = sim.truth();
+  const last = log.commits[log.commits.length - 1] || null;
+  const err = last ? Math.max(...last.corners.map((p, i) => Math.hypot(p.x - truth[i].x, p.y - truth[i].y))) : null;
+  const status = document.querySelector('[data-status]').textContent;
+  return {seed, ms, grabs: log.grabs, committed: !!last, err, message: last ? last.message : '', status,
+    progressSamples: log.progress.length, phases: [...new Set(log.progress.map(p => p.phase + (p.attempt > 1 ? ' try ' + p.attempt : '')))],
+    marks: log.marks, truthPx: truth.map(p => [+(p.x*480).toFixed(1), +(p.y*360).toFixed(1)]),
+    cornerErr: last ? last.corners.map((p, i) => +(Math.hypot(p.x - truth[i].x, p.y - truth[i].y) * 480).toFixed(1)) : null,
+    seen: params.get('trace') ? sim.seen : undefined, history: params.get('trace') ? sim.history.map(h => ({t: Math.round(h.t - sim.t0), key: h.key})) : undefined,
+    simRenderMs: sim.renders ? +(sim.renderMs / sim.renders).toFixed(1) : null,
+    profile: {latencyMs: Math.round(profile.latencyMs), aeTauMs: Math.round(profile.aeTauMs), ambient: +profile.ambient.toFixed(3)}};
+};
+// Sticker check: start from a wrong quad (TJ, Nov 10 10:00 AM: a debug-set
+// quad ~26% too wide, shifted left) with three stickers on the screen.
+const applyH = (H, x, y) => { const w = H[6] * x + H[7] * y + H[8]; return {x: (H[0] * x + H[1] * y + H[2]) / w, y: (H[3] * x + H[4] * y + H[5]) / w}; };
+window.__verify = async () => {
+  const vr = rng(seed * 104729 + 3);
+  const truth = sim.truth();
+  const stageToCam = solveH([{x: 0, y: 0}, {x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1}], truth);
+  const cx = truth.reduce((a, p) => a + p.x, 0) / 4, cy = truth.reduce((a, p) => a + p.y, 0) / 4;
+  const sx = 1.1 + vr() * 0.2, sy = 1 + (vr() - 0.5) * 0.12, dx = (vr() - 0.5) * 0.1, dy = (vr() - 0.5) * 0.06;
+  let committed = truth.map(p => ({x: cx + (p.x - cx) * sx + dx, y: cy + (p.y - cy) * sy + dy}));
+  const stickersStage = Array.from({length: 3}, () => ({x: 0.25 + vr() * 0.5, y: 0.3 + vr() * 0.45}));
+  const stickersCam = stickersStage.map(p => applyH(stageToCam, p.x, p.y));
+  const api = camRoot.neuralDanceCamera;
+  api.debugState = () => ({quad: committed.map(p => ({...p})), detectWidth: 480, detectHeight: 360,
+    stickers: stickersCam.map(p => ({grid: [p.x * 480, p.y * 360]})), markers: []});
+  api.setNormalizedCorners = (q) => { committed = q.map(p => ({x: +p.x, y: +p.y})); return true; };
+  let verifyReport = null;
+  api.setVerifyReport = (r) => { verifyReport = r; };
+  // Ground truth: where each sticker's dancer actually lands, camera px (480 wide).
+  const landing = () => stickersCam.map(c => {
+    const st = show.stageOfCamera(committed, c);
+    const at = applyH(stageToCam, st.x, st.y);
+    return Math.hypot((at.x - c.x) * 480, (at.y - c.y) * 360);
+  });
+  const before = landing();
+  const t0 = performance.now();
+  const result = await show.verifyStickersNow(document, {});
+  sim.stop();
+  const after = landing();
+  const mean = (a) => +(a.reduce((x, y) => x + y, 0) / a.length).toFixed(2);
+  return {seed, ms: Math.round(performance.now() - t0), truthBeforePx: mean(before), truthAfterPx: mean(after),
+    measuredBefore: result && result.before ? result.before.meanPx : null, measuredAfter: result && result.after ? result.after.meanPx : null,
+    applied: !!(result && result.applied), stopped: result && result.stopped, passes: result && result.passes.map(p => p.kind || '-'), report: !!verifyReport};
+};
+// Precision tools (TJ Nov 11): structured-light auto align from a bad or
+// missing quad, then a 1-point recheck and a crosshair check on that map.
+window.__auto = async () => {
+  const api = camRoot.neuralDanceCamera;
+  let committed = null;
+  api.setNormalizedCorners = (q, message) => { committed = q.map(p => ({x: +p.x, y: +p.y})); log.commits.push({corners: committed, message}); return true; };
+  api.debugState = () => ({quad: committed ? committed.map(p => ({...p})) : null});
+  const t0 = performance.now();
+  const r = await show.autoAlignNow(document, {fromDebug: true});
+  const ms = performance.now() - t0;
+  const truth = sim.truth();
+  const err = committed ? Math.max(...committed.map((p, i) => Math.hypot(p.x - truth[i].x, p.y - truth[i].y))) : null;
+  const out = {seed, ms: Math.round(ms), ok: !!(r && r.ok), reason: r && r.reason, err, errPx: err == null ? null : +(err * 480).toFixed(2),
+    found: r && r.found, expected: r && r.expected, latencyMs: r && r.latencyMs, frames: r && r.frames, rmsPx: r && r.stats ? r.stats.rmsPx : null,
+    text: show.precisionTelemetry().text, profile: {latencyMs: Math.round(profile.latencyMs), ambient: +profile.ambient.toFixed(3)}};
+  if (params.get('recheck') === '1' && committed) {
+    const rc = await show.recheckAlignNow(document, {fromDebug: true});
+    out.recheck = rc ? {ok: rc.ok, verdict: rc.verdict, px: rc.points && rc.points[0] ? rc.points[0].px : null, reason: rc.reason} : null;
+  }
+  if (params.get('xhair') === '1' && committed) {
+    // Stickers sit where each crosshair truly lands; the "camera" reports
+    // them through the committed map (what the real white scan does).
+    const H = solveH([{x: 0, y: 0}, {x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1}], truth);
+    api.previewWhiteFrame = () => {
+      const Hc = solveH(committed, [{x: 0, y: 0}, {x: 1, y: 0}, {x: 1, y: 1}, {x: 0, y: 1}]);
+      const pts = [[0.25, 0.3], [0.75, 0.3], [0.75, 0.72], [0.25, 0.72], [0.5, 0.51]].map(([x, y]) => {
+        const c = applyH(H, x, y); const s = applyH(Hc, c.x, c.y); return {x: s.x * 1000, y: s.y * 620, kind: 'sticker'};
+      });
+      return {ok: true, points: pts};
+    };
+    // Nudge the map off by a camera bump, then measure and fix.
+    committed = committed.map(p => ({x: p.x + 0.012, y: p.y - 0.008}));
+    await show.crosshairCheckNow(document, {step: 'show', fromDebug: true});
+    const m = await show.crosshairCheckNow(document, {step: 'measure', fromDebug: true});
+    const f = await show.crosshairCheckNow(document, {step: 'fix', fromDebug: true});
+    const err2 = Math.max(...committed.map((p, i) => Math.hypot(p.x - truth[i].x, p.y - truth[i].y)));
+    out.xhair = {beforePx: m && m.stats ? m.stats.maxPx : null, applied: !!(f && f.applied), afterErrPx: +(err2 * 480).toFixed(2), text: show.precisionTelemetry().text};
+  }
+  sim.stop();
+  return out;
+};
+window.__ready = true;
+</script>
+</body></html>
